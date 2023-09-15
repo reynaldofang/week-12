@@ -1,115 +1,166 @@
-// src/components/RegistrationForm.tsx
-import React, { useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
+import React, { useState } from 'react';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
-const RegistrationForm = () => {
+const validationSchema = Yup.object({
+  fullName: Yup.string().required('Full Name is required'),
+  email: Yup.string().email('Invalid email format').required('Email is required'),
+  dob: Yup.date()
+    .required('Date of Birth is required')
+    .max(new Date(), 'Date of Birth cannot be in the future'),
+  streetAddress: Yup.string().required('Street Address is required'),
+  city: Yup.string().required('City is required'),
+  state: Yup.string().required('State is required'),
+  zipCode: Yup.string()
+    .required('Zip Code is required')
+    .matches(/^\d{5}$/, 'Invalid Zip Code format (should be 5 digits)'),
+  username: Yup.string().required('Username is required'),
+  password: Yup.string()
+    .required('Password is required')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+    ),
+});
+
+const RegistrationForm: React.FC = () => {
   const [step, setStep] = useState(1);
 
-  const initialValues = {
-    fullName: "",
-    email: "",
-    dateOfBirth: "",
+  const handleNextStep = () => {
+    if (step < 3) {
+      setStep(step + 1);
+    }
   };
 
-  const validationSchema = Yup.object().shape({
-    fullName: Yup.string().required("Full Name is required"),
-    email: Yup.string()
-      .email("Invalid email format")
-      .required("Email is required"),
-    dateOfBirth: Yup.date()
-      .required("Date of Birth is required")
-      .test("valid-age", "Age must be at least 18", (value) => {
-        const birthDate = new Date(value);
-        const today = new Date();
-        const age = today.getFullYear() - birthDate.getFullYear();
-        return age >= 18;
-      }),
-  });
-
-  const formik = useFormik({
-    initialValues,
-    validationSchema,
-    onSubmit: (values) => {
-      // Handle submission of the complete form data
-      console.log("Complete Form Data:", values);
-      // You can send the data to a server, navigate to another page, etc.
-    },
-  });
-
-  const nextStep = () => {
-    setStep(step + 1);
+  const handlePrevStep = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
   };
 
-  const prevStep = () => {
-    setStep(step - 1);
+  const initialValues: {
+    fullName: string;
+    email: string;
+    dob: string;
+    streetAddress: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    username: string;
+    password: string;
+  } = {
+    fullName: '',
+    email: '',
+    dob: '',
+    streetAddress: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    username: '',
+    password: '',
   };
 
   return (
     <div>
-      {step === 1 && (
-        <div>
-          <h2>Step 1: Personal Information</h2>
-          <form onSubmit={formik.handleSubmit}>
-            <div>
-              <label htmlFor="fullName">Full Name:</label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                onChange={formik.handleChange}
-                value={formik.values.fullName}
-              />
-              {formik.errors.fullName && (
-                <div className="error">{formik.errors.fullName}</div>
-              )}
-            </div>
-            <div>
-              <label htmlFor="email">Email:</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                onChange={formik.handleChange}
-                value={formik.values.email}
-              />
-              {formik.errors.email && (
-                <div className="error">{formik.errors.email}</div>
-              )}
-            </div>
-            <div>
-              <label htmlFor="dateOfBirth">Date of Birth:</label>
-              <input
-                type="date"
-                id="dateOfBirth"
-                name="dateOfBirth"
-                onChange={formik.handleChange}
-                value={formik.values.dateOfBirth}
-              />
-              {formik.errors.dateOfBirth && (
-                <div className="error">{formik.errors.dateOfBirth}</div>
-              )}
-            </div>
-            <button type="button" onClick={nextStep}>
-              Next
-            </button>
-          </form>
-        </div>
-      )}
-      {/* Add more steps as needed */}
-      {/* Example of a second step */}
-      {step === 2 && (
-        <div>
-          <h2>Step 2: Skill Set</h2>
-          <form onSubmit={formik.handleSubmit}>
-            {/* Add fields for skill set */}
-            <button type="button" onClick={prevStep}>
-              Previous
-            </button>
-            <button type="submit">Submit</button>
-          </form>
-        </div>
-      )}
+      <h2>Step {step} - {step === 1 ? 'Personal Information' : step === 2 ? 'Address Information' : 'Account Information'}</h2>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={(values, { setSubmitting }) => {
+          setTimeout(() => {
+            if (step < 3) {
+              handleNextStep();
+            } else {
+              // hasil akan muncul di console log tersebut
+              console.log('Form submitted data :', values);
+              setSubmitting(false);
+            }
+          }, 400);
+        }}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            {step === 1 && (
+              <>
+                <div>
+                  <label htmlFor="fullName">Full Name:</label>
+                  <Field type="text" id="fullName" name="fullName" />
+                  <ErrorMessage name="fullName" component="div" />
+                </div>
+                <div>
+                  <label htmlFor="email">Email Address:</label>
+                  <Field type="email" id="email" name="email" />
+                  <ErrorMessage name="email" component="div" />
+                </div>
+                <div>
+                  <label htmlFor="dob">Date of Birth:</label>
+                  <Field type="date" id="dob" name="dob" />
+                  <ErrorMessage name="dob" component="div" />
+                </div>
+                <div>
+                  <button type="button" onClick={handleNextStep} disabled={isSubmitting}>
+                    Next
+                  </button>
+                </div>
+              </>
+            )}
+            {step === 2 && (
+              <>
+                <div>
+                  <label htmlFor="streetAddress">Street Address:</label>
+                  <Field type="text" id="streetAddress" name="streetAddress" />
+                  <ErrorMessage name="streetAddress" component="div" />
+                </div>
+                <div>
+                  <label htmlFor="city">City:</label>
+                  <Field type="text" id="city" name="city" />
+                  <ErrorMessage name="city" component="div" />
+                </div>
+                <div>
+                  <label htmlFor="state">State:</label>
+                  <Field type="text" id="state" name="state" />
+                  <ErrorMessage name="state" component="div" />
+                </div>
+                <div>
+                  <label htmlFor="zipCode">Zip Code:</label>
+                  <Field type="text" id="zipCode" name="zipCode" />
+                  <ErrorMessage name="zipCode" component="div" />
+                </div>
+                <div>
+                  <button type="button" onClick={handlePrevStep} disabled={isSubmitting}>
+                    Previous
+                  </button>
+                  <button type="button" onClick={handleNextStep} disabled={isSubmitting}>
+                    Next
+                  </button>
+                </div>
+              </>
+            )}
+            {step === 3 && (
+              <>
+                <div>
+                  <label htmlFor="username">Username:</label>
+                  <Field type="text" id="username" name="username" />
+                  <ErrorMessage name="username" component="div" />
+                </div>
+                <div>
+                  <label htmlFor="password">Password:</label>
+                  <Field type="password" id="password" name="password" />
+                  <ErrorMessage name="password" component="div" />
+                </div>
+                <div>
+                  <button type="button" onClick={handlePrevStep} disabled={isSubmitting}>
+                    Previous
+                  </button>
+                  <button type="submit" disabled={isSubmitting}>
+                    Submit
+                  </button>
+                </div>
+              </>
+            )}
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };
