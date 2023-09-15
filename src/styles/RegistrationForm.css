@@ -1,0 +1,53 @@
+/* Container untuk komponen form */
+.registration-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Kontainer untuk setiap langkah */
+.step-container {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+/* Judul langkah (step title) */
+.step-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Tombol navigasi */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/* Tombol "Previous" */
+.prev-button {
+  background-color: #ccc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+/* Tombol "Next" dan "Submit" */
+.next-button,
+.submit-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+/* Gaya tambahan sesuai kebutuhan */
+/* Misalnya, Anda dapat menambahkan gaya untuk input fields di sini */
